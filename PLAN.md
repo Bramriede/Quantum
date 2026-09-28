@@ -63,11 +63,11 @@ laat het weten als je dit ook door ChatGPT-assets wilt laten vervangen.
   actieve vaardigheden (mortier/gas/reserves) met cooldown-indicatie.
 - Slagveld (y 110-760, hoogte 650px, volle breedte 1600px min marges):
   - **Loopgraaf-linie**: verticale strook aan de **linkerkant** (x ~40-220px),
-    in **2 rijen** (bevestigd): **voorste rij** (dicht bij no man's land) met
-    Muur (1 slot) en Machinegeweer (2 sloten — "extra mg" = tweede nest in
-    dezelfde lane) en de nieuwe Vlammenwerper-structuur (1 slot); **achterste
-    rij** (verder terug) met AT-kanon (1 slot), de nieuwe Mortierteam-
-    structuur (1 slot) en Gasmaskerpost (1 slot).
+    in **2 rijen** met elk **1 slot per lane** (vereenvoudigd om ruimte-
+    overflow te voorkomen, zie NOTES.md #19): **voorste slot** = keuze uit
+    Muur, Machinegeweer of Vlammenwerper-structuur (mutueel exclusief,
+    "extra mg" = hoger MG-niveau i.p.v. een fysiek 2e nest); **achterste
+    slot** = keuze uit AT-kanon, Mortierteam-structuur of Gasmaskerpost.
   - **No man's land**: rest van de breedte (x ~220-1560px, ruim 1300px lang) —
     dit is de aanlooproute waarover vijanden van rechts naar links marcheren.
     Ruim genoeg zodat MG's/AT-kanon meerdere keren kunnen vuren voor een
@@ -109,8 +109,8 @@ laat het weten als je dit ook door ChatGPT-assets wilt laten vervangen.
   vuurt automatisch indirect op vijanden verderop in de lane. Bestaat naast de
   actieve mortier-vaardigheid (die blijft gratis/cooldown-gebaseerd), niet in
   plaats daarvan.
-- **No man's land-plaatsbaar (nieuw, bevestigd)**: 2 bouwplekken per lane in
-  no man's land (ver + dichtbij de loopgraaf), elk met keuze uit Prikkeldraad
+- **No man's land-plaatsbaar (nieuw, bevestigd)**: 1 bouwplek per lane in
+  no man's land (vereenvoudigd, zie NOTES.md #19), met keuze uit Prikkeldraad
   (permanent, 2 niveaus), **Tankversperring** (permanent, blokkeert/vertraagt
   alleen tanks), **Tankmijn** (eenmalig, alleen tegen tanks, verdwijnt na
   gebruik) of **Personeelsmijn** (eenmalig, alleen tegen infanterie-achtige

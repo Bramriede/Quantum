@@ -1,11 +1,7 @@
-import { GAME_WIDTH, ZONES, DEPTH } from '../data/Constants.js';
+import { GAME_WIDTH, ZONES, DEPTH, TOTAL_WAVES } from '../data/Constants.js';
+import StructureDefs, { SLOT_OPTIONS } from '../data/StructureDefs.js';
 
-const BUILD_OPTIONS = [
-  { key: 'icon_wall', label: 'Muur', price: 50 },
-  { key: 'icon_machinegun', label: 'Mitrailleur', price: 350 },
-  { key: 'icon_gasmask', label: 'Gasmaskerpost', price: 150 },
-  { key: 'icon_barbedwire', label: 'Prikkeldraad', price: 25 },
-];
+const BUILD_ORDER = [...SLOT_OPTIONS.front, ...SLOT_OPTIONS.back, ...SLOT_OPTIONS.nml];
 
 const ABILITIES = [
   { key: 'ability_mortar', label: 'Mortier' },
@@ -17,22 +13,29 @@ export default class UIScene extends Phaser.Scene {
   constructor() { super('UI'); }
 
   create() {
+    this.buildIcons = {};
     this._buildTopHud();
     this._buildAbilityBar();
     this._buildBottomPanel();
 
     const gameScene = this.scene.get('Game');
-    gameScene.events.on('supplies-changed', (value) => {
-      this.suppliesText.setText(`${value}`);
-    });
+    this.gameScene = gameScene;
+
     gameScene.events.on('trench-hp-changed', (hp, maxHp) => {
       const pct = Phaser.Math.Clamp(hp / maxHp, 0, 1);
       this.hpBar.width = 320 * pct;
       this.hpBar.setFillStyle(pct > 0.5 ? 0x5fae4a : pct > 0.2 ? 0xd9a441 : 0xd8453b);
     });
-    gameScene.events.on('wave-changed', (wave) => {
-      this.waveText.setText(`GOLF ${wave} / 12`);
+    gameScene.events.on('wave-changed', (wave, total) => {
+      this.waveText.setText(`GOLF ${wave} / ${total || TOTAL_WAVES}`);
     });
+    gameScene.events.on('supplies-changed', (value) => {
+      this.suppliesText.setText(`${value}`);
+    });
+    gameScene.events.on('phase-changed', (phase) => this._onPhaseChanged(phase));
+    gameScene.events.on('build-selection-changed', (defId) => this._onSelectionChanged(defId));
+
+    this._onPhaseChanged('prep');
   }
 
   _buildTopHud() {
@@ -82,23 +85,53 @@ export default class UIScene extends Phaser.Scene {
     this.add.image(GAME_WIDTH / 2, y + height / 2, 'panel_bg')
       .setDisplaySize(GAME_WIDTH, height).setDepth(DEPTH.UI);
 
-    const totalWidth = BUILD_OPTIONS.length * 220;
-    const startX = GAME_WIDTH / 2 - totalWidth / 2 + 110;
-
-    BUILD_OPTIONS.forEach((opt, i) => {
-      const x = startX + i * 220;
-      const cy = y + height / 2;
-      const icon = this.add.image(x, cy - 14, opt.key)
-        .setDisplaySize(64, 64).setDepth(DEPTH.UI).setInteractive({ useHandCursor: true });
-      this.add.text(x, cy + 30, opt.label, {
-        fontFamily: 'Georgia, serif', fontSize: '14px', color: '#f0e6c8',
+    const cy = y + height / 2;
+    BUILD_ORDER.forEach((defId, i) => {
+      const def = StructureDefs[defId];
+      const x = 70 + i * 128;
+      const icon = this.add.image(x, cy - 22, def.icon)
+        .setDisplaySize(48, 48).setDepth(DEPTH.UI).setInteractive({ useHandCursor: true });
+      const label = this.add.text(x, cy + 10, def.label, {
+        fontFamily: 'Georgia, serif', fontSize: '11px', color: '#f0e6c8', align: 'center',
+        wordWrap: { width: 118 },
+      }).setOrigin(0.5, 0).setDepth(DEPTH.UI);
+      const priceText = this.add.text(x, cy + 42, `${def.levels[0].price}`, {
+        fontFamily: 'Georgia, serif', fontSize: '13px', color: '#d9b45c',
       }).setOrigin(0.5).setDepth(DEPTH.UI);
-      this.add.image(x - 34, cy + 52, 'icon_supplies').setDisplaySize(18, 18).setDepth(DEPTH.UI);
-      this.add.text(x - 20, cy + 52, `${opt.price}`, {
-        fontFamily: 'Georgia, serif', fontSize: '14px', color: '#d9b45c',
-      }).setOrigin(0, 0.5).setDepth(DEPTH.UI);
+      const ring = this.add.circle(x, cy - 22, 30).setStrokeStyle(2, 0xf4e04d, 0).setDepth(DEPTH.UI);
+
       icon.on('pointerover', () => icon.setTint(0xdddddd));
       icon.on('pointerout', () => icon.clearTint());
+      icon.on('pointerdown', () => this.gameScene.events.emit('request-select-build', defId));
+
+      this.buildIcons[defId] = { icon, label, priceText, ring };
     });
+
+    this.startWaveBtn = this.add.image(GAME_WIDTH - 110, cy, 'button_frame')
+      .setDisplaySize(180, 64).setDepth(DEPTH.UI).setInteractive({ useHandCursor: true });
+    this.startWaveText = this.add.text(GAME_WIDTH - 110, cy, 'START GOLF', {
+      fontFamily: 'Georgia, serif', fontSize: '18px', color: '#ffffff', fontStyle: 'bold',
+    }).setOrigin(0.5).setDepth(DEPTH.UI + 1);
+    this.startWaveBtn.on('pointerover', () => this.startWaveBtn.setTint(0xdddddd));
+    this.startWaveBtn.on('pointerout', () => this.startWaveBtn.clearTint());
+    this.startWaveBtn.on('pointerdown', () => this.gameScene.events.emit('request-start-wave'));
+  }
+
+  _onSelectionChanged(selectedDefId) {
+    Object.entries(this.buildIcons).forEach(([defId, refs]) => {
+      refs.ring.setStrokeStyle(2, 0xf4e04d, defId === selectedDefId ? 1 : 0);
+    });
+  }
+
+  _onPhaseChanged(phase) {
+    const prep = phase === 'prep';
+    const alpha = prep ? 1 : 0.4;
+    Object.values(this.buildIcons).forEach(({ icon, priceText }) => {
+      icon.setAlpha(alpha);
+      priceText.setAlpha(alpha);
+    });
+    this.startWaveBtn.setVisible(prep);
+    this.startWaveText.setVisible(prep);
+    if (!prep) this._onSelectionChanged(null);
   }
 }

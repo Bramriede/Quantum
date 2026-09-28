@@ -12,13 +12,18 @@ export default class LaneSystem {
     this.lanes = [];
     for (let i = 0; i < LANE_COUNT; i++) {
       const top = ZONES.battlefield.y + LANE_HEIGHT * i;
+      const centerY = top + LANE_HEIGHT / 2;
       this.lanes.push({
         index: i,
         top,
         bottom: top + LANE_HEIGHT,
-        centerY: top + LANE_HEIGHT / 2,
+        centerY,
         trenchFrontX: TRENCH_X + TRENCH_WIDTH, // x-positie waar een vijand de linie bereikt
         spawnX: SPAWN_X,
+        // Bouwplekken: 1 voorste-rij, 1 achterste-rij, 1 no-man's-land slot.
+        frontSlot: { x: TRENCH_X + TRENCH_WIDTH * 0.72, y: centerY, structure: null },
+        backSlot: { x: TRENCH_X + TRENCH_WIDTH * 0.28, y: centerY, structure: null },
+        nmlSlot: { x: NO_MANS_LAND_X + 70, y: centerY, structure: null },
       });
     }
   }

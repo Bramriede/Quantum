@@ -67,6 +67,26 @@ Dit bestand houdt bij welke keuzes ik zelf heb gemaakt waar het concept niet
     gekocht en geplaatst worden in no man's land. Ik implementeer dit als 2
     bouwplekken per lane in no man's land (ver + dichtbij de loopgraaf) i.p.v.
     volledig vrije plaatsing, om de UI/balans behapbaar te houden.
+19. **Slot-model vereenvoudigd voor haalbaarheid** (technische keuze): met 4
+    voorste-rij + 3 achterste-rij + 2 no-man's-land-sloten per lane (9 totaal
+    × 5 lanes = 45 sloten) passen de structuren fysiek niet meer naast elkaar
+    binnen de beschikbare 180px loopgraaf-breedte / 130px lane-hoogte zonder
+    zware overlap. Ik gebruik daarom **3 sloten per lane** (1 voorste, 1
+    achterste, 1 no-man's-land), elk met een keuze uit meerdere structuur-
+    typen (mutueel exclusief, net als vóór de latere uitbreidingen):
+    - Voorste slot: Muur, Machinegeweer óf Vlammenwerper-structuur.
+    - Achterste slot: AT-kanon, Mortierteam-structuur óf Gasmaskerpost.
+    - No man's land-slot: Prikkeldraad, Tankversperring, Tankmijn óf
+      Personeelsmijn (mijnen verbruiken zichzelf bij gebruik, slot komt
+      daarna weer vrij).
+    "Extra machinegeweer" wordt hiermee een upgrade-niveau van hetzelfde
+    MG-slot (meer vuurkracht per niveau) i.p.v. een fysiek tweede MG-sprite
+    ernaast — geeft hetzelfde gameplay-gevoel zonder de ruimte-overflow.
+18. **Loop-animatie en tank-beweging** (bevestigd): lopende eenheden krijgen
+    een lichte code-side "waggel" (bob + hoek-schommeling) i.p.v. een echt
+    frame-voor-frame loop-plaatje. De tank (fase 4) krijgt een lichte
+    schommel/pitch plus een code-getekend stof-/rookspoor achter het
+    voertuig — geen bewegende-rupsband-asset nodig.
 17. **Scope-fasering**: dit uitgebreide rooster (fase-1-toevoegingen 15+16)
     wordt vastgelegd in PLAN.md/ASSETS.md maar pas **gebouwd in Fase 4**
     ("volledige golf-campagne"). Fase 2/3 blijven bewust bij de kern-loop

@@ -22,6 +22,9 @@ export default class Enemy {
     this.sprite.setDisplaySize(typeConfig.displaySize, typeConfig.displaySize);
     this.sprite.setAngle(-90);
     this.sprite.setDepth(DEPTH.UNIT);
+    this.baseY = y;
+    this.speedMultiplier = 1;
+    this._walkPhase = Phaser.Math.FloatBetween(0, Math.PI * 2);
   }
 
   get x() { return this.sprite.x; }
@@ -29,8 +32,14 @@ export default class Enemy {
 
   update(delta) {
     if (!this.alive || this.reachedTrench) return;
-    const dx = (this.type.speed * delta) / 1000;
+    const dx = (this.type.speed * this.speedMultiplier * delta) / 1000;
     this.sprite.x -= dx;
+
+    // Lichte "waggel" i.p.v. een echte loop-cyclus (zie NOTES.md): geen los
+    // animatie-plaatje nodig, van bovenaf oogt dit al als marcheren.
+    this._walkPhase += delta * 0.012;
+    this.sprite.y = this.baseY + Math.sin(this._walkPhase) * 2.2;
+    this.sprite.setAngle(-90 + Math.sin(this._walkPhase * 0.9) * 5);
 
     const frontX = this.laneSystem.trenchFrontX();
     if (this.sprite.x <= frontX) {

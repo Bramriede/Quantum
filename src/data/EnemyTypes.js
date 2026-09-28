@@ -4,11 +4,12 @@ const EnemyTypes = {
   infantry: {
     key: 'infantry',
     textureKey: 'soldier_infantry_enemy',
+    category: 'infantry',
     hp: 20,
     speed: 42, // px/s
     breachDamage: 5,
     reward: 8,
-    displaySize: 48,
+    displaySize: 40,
   },
 };
 
