@@ -30,7 +30,7 @@ export default class SpawnSystem {
     this._elapsed = 0;
   }
 
-  update(delta) {
+  update(time, delta) {
     if (!this.waveActive) return;
     this._elapsed += delta;
 
@@ -40,7 +40,7 @@ export default class SpawnSystem {
     }
     if (this.pendingSpawns.length === 0) this.spawningDone = true;
 
-    this.enemies.forEach((e) => e.update(delta));
+    this.enemies.forEach((e) => e.update(delta, time));
     this.enemies = this.enemies.filter((e) => e.alive && !e.reachedTrench);
 
     if (this.spawningDone && this.enemies.length === 0 && this.waveActive) {

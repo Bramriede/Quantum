@@ -4,9 +4,9 @@ import StructureDefs, { SLOT_OPTIONS } from '../data/StructureDefs.js';
 const BUILD_ORDER = [...SLOT_OPTIONS.front, ...SLOT_OPTIONS.back, ...SLOT_OPTIONS.nml];
 
 const ABILITIES = [
-  { key: 'ability_mortar', label: 'Mortier' },
-  { key: 'ability_gas', label: 'Gasinzet' },
-  { key: 'ability_reserves', label: 'Reserves' },
+  { id: 'mortar', key: 'ability_mortar', label: 'Mortier' },
+  { id: 'gas', key: 'ability_gas', label: 'Gasinzet' },
+  { id: 'reserves', key: 'ability_reserves', label: 'Reserves' },
 ];
 
 export default class UIScene extends Phaser.Scene {
@@ -34,6 +34,8 @@ export default class UIScene extends Phaser.Scene {
     });
     gameScene.events.on('phase-changed', (phase) => this._onPhaseChanged(phase));
     gameScene.events.on('build-selection-changed', (defId) => this._onSelectionChanged(defId));
+    gameScene.events.on('ability-armed-changed', (armed) => this._onAbilityArmedChanged(armed));
+    gameScene.events.on('ability-cooldowns-changed', (cd) => this._onCooldownsChanged(cd));
 
     this._onPhaseChanged('prep');
   }
@@ -67,16 +69,24 @@ export default class UIScene extends Phaser.Scene {
     this.add.image(GAME_WIDTH / 2, y + height / 2, 'ability_bar_bg')
       .setDisplaySize(GAME_WIDTH, height).setDepth(DEPTH.UI);
 
+    this.abilityIcons = {};
     const startX = GAME_WIDTH / 2 - (ABILITIES.length - 1) * 70;
     ABILITIES.forEach((ab, i) => {
       const x = startX + i * 140;
-      const icon = this.add.image(x, y + height / 2, ab.key)
+      const cy = y + height / 2;
+      const icon = this.add.image(x, cy, ab.key)
         .setDisplaySize(38, 38).setDepth(DEPTH.UI).setInteractive({ useHandCursor: true });
-      this.add.text(x + 26, y + height / 2, ab.label, {
+      const label = this.add.text(x + 26, cy, ab.label, {
         fontFamily: 'Georgia, serif', fontSize: '13px', color: '#c9b896',
       }).setOrigin(0, 0.5).setDepth(DEPTH.UI);
+      const ring = this.add.circle(x, cy, 24).setStrokeStyle(2, 0xf4e04d, 0).setDepth(DEPTH.UI);
+      const cooldownOverlay = this.add.rectangle(x, cy, 38, 38, 0x000000, 0.6).setDepth(DEPTH.UI + 1).setVisible(false);
+
       icon.on('pointerover', () => icon.setTint(0xdddddd));
       icon.on('pointerout', () => icon.clearTint());
+      icon.on('pointerdown', () => this.gameScene.events.emit('request-arm-ability', ab.id));
+
+      this.abilityIcons[ab.id] = { icon, label, ring, cooldownOverlay, baseLabel: ab.label };
     });
   }
 
@@ -115,6 +125,19 @@ export default class UIScene extends Phaser.Scene {
     this.startWaveBtn.on('pointerover', () => this.startWaveBtn.setTint(0xdddddd));
     this.startWaveBtn.on('pointerout', () => this.startWaveBtn.clearTint());
     this.startWaveBtn.on('pointerdown', () => this.gameScene.events.emit('request-start-wave'));
+  }
+
+  _onAbilityArmedChanged(armed) {
+    Object.entries(this.abilityIcons).forEach(([id, refs]) => {
+      refs.ring.setStrokeStyle(2, 0xf4e04d, id === armed ? 1 : 0);
+    });
+  }
+
+  _onCooldownsChanged({ mortar, gas, reservesPool, reservesMax }) {
+    this.abilityIcons.mortar.cooldownOverlay.setVisible(mortar > 0);
+    this.abilityIcons.gas.cooldownOverlay.setVisible(gas > 0);
+    this.abilityIcons.reserves.label.setText(`Reserves ${reservesPool}/${reservesMax}`);
+    this.abilityIcons.reserves.cooldownOverlay.setVisible(reservesPool <= 0);
   }
 
   _onSelectionChanged(selectedDefId) {

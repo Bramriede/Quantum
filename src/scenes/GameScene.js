@@ -3,8 +3,10 @@ import LaneSystem from '../systems/LaneSystem.js';
 import SpawnSystem from '../systems/SpawnSystem.js';
 import EconomySystem from '../systems/EconomySystem.js';
 import BuildSystem from '../systems/BuildSystem.js';
+import GasHazardSystem from '../systems/GasHazardSystem.js';
+import AbilitySystem from '../systems/AbilitySystem.js';
 import Waves from '../data/Waves.js';
-import { floatingText, screenShake } from '../utils/FX.js';
+import { floatingText, screenShake, hitBurst } from '../utils/FX.js';
 
 const START_SUPPLIES = 150;
 const START_TRENCH_HP = 100;
@@ -30,12 +32,25 @@ export default class GameScene extends Phaser.Scene {
     this.economy = new EconomySystem(this, START_SUPPLIES);
     this.buildSystem = new BuildSystem(this, this.laneSystem, this.economy);
     this.spawnSystem = new SpawnSystem(this, this.laneSystem);
+    this.gasHazard = new GasHazardSystem(this, this.laneSystem);
+    this.abilitySystem = new AbilitySystem(this, this.laneSystem);
 
     this.events.on('enemy-breach', this._onEnemyBreach, this);
     this.events.on('enemy-killed', this._onEnemyKilled, this);
+    this.events.on('enemy-ranged-attack', this._onEnemyRangedAttack, this);
     this.events.on('wave-complete', this._onWaveComplete, this);
     this.events.on('request-start-wave', this._startWave, this);
-    this.events.on('request-select-build', (defId) => this.buildSystem.selectType(defId));
+    this.events.on('request-select-build', (defId) => {
+      this.abilitySystem.armed = null;
+      this.events.emit('ability-armed-changed', null);
+      this.buildSystem.selectType(defId);
+    });
+    this.events.on('request-arm-ability', (key) => {
+      this.buildSystem.selectedDefId = null;
+      this.events.emit('build-selection-changed', null);
+      this.abilitySystem.arm(key);
+    });
+    this.events.on('ability-impact', this._onAbilityImpact, this);
 
     this.scene.launch('UI');
     this.events.emit('trench-hp-changed', this.trenchHp, this.trenchMaxHp);
@@ -46,9 +61,11 @@ export default class GameScene extends Phaser.Scene {
   update(time, delta) {
     if (this.gameOver) return;
     this.buildSystem.update(time, delta, this.spawnSystem.enemies);
+    this.abilitySystem.update(time, delta, this.spawnSystem.enemies);
     if (this.phase === 'combat') {
-      this.spawnSystem.update(delta);
+      this.spawnSystem.update(time, delta);
       this.spawnSystem.enemies.forEach((e) => { e.speedMultiplier = 1; });
+      this.gasHazard.update(time, this.waveNumber);
     }
   }
 
@@ -58,11 +75,27 @@ export default class GameScene extends Phaser.Scene {
     this.buildSystem.setPrepPhase(false);
     this.events.emit('phase-changed', this.phase);
     this.spawnSystem.startWave(Waves[this.waveNumber - 1]);
+    this.gasHazard.reset(this.time.now);
+  }
+
+  _onEnemyRangedAttack(enemy) {
+    if (this.gameOver) return;
+    this.trenchHp = Math.max(0, this.trenchHp - enemy.type.rangedAttack.damage);
+    this.events.emit('trench-hp-changed', this.trenchHp, this.trenchMaxHp);
+    floatingText(this, enemy.laneSystem.trenchFrontX() + 30, enemy.y, `-${enemy.type.rangedAttack.damage} inslag`, '#ff8a65');
+    if (this.trenchHp <= 0) this._onGameOver();
+  }
+
+  _onAbilityImpact({ laneIndex, x, radius, damage }) {
+    this.spawnSystem.enemies.forEach((e) => {
+      if (!e.alive || e.laneIndex !== laneIndex) return;
+      if (Math.abs(e.x - x) <= radius) e.takeDamage(damage);
+    });
   }
 
   _onEnemyBreach(enemy) {
     if (this.gameOver) return;
-    const reduction = this.buildSystem.breachReductionFor(enemy.laneIndex);
+    const reduction = enemy.type.ignoresWallReduction ? 0 : this.buildSystem.breachReductionFor(enemy.laneIndex);
     const dmg = Math.max(1, enemy.type.breachDamage - reduction);
     this.trenchHp = Math.max(0, this.trenchHp - dmg);
     this.events.emit('trench-hp-changed', this.trenchHp, this.trenchMaxHp);

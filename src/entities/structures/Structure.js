@@ -57,12 +57,23 @@ export default class Structure {
     }
   }
 
+  _isGasImpaired() {
+    const lane = this.laneSystem.lanes[this.laneIndex];
+    if (!lane.gassed) return false;
+    const hasMask = lane.backSlot.structure && lane.backSlot.structure.defId === 'gasmask';
+    return !hasMask;
+  }
+
   _lane_enemies_ahead(enemies) {
     return enemies.filter((e) => e.alive && e.laneIndex === this.laneIndex && e.x - this.x > -10);
   }
 
   _updateTurret(time, enemies) {
-    if (time - this.lastFireTime < this.levelCfg.fireIntervalMs) return;
+    if (this._isGasImpaired()) return;
+    const lane = this.laneSystem.lanes[this.laneIndex];
+    const boosted = lane.reserveBoostUntil && time < lane.reserveBoostUntil;
+    const interval = boosted ? this.levelCfg.fireIntervalMs * 0.5 : this.levelCfg.fireIntervalMs;
+    if (time - this.lastFireTime < interval) return;
     const candidates = this._lane_enemies_ahead(enemies);
     if (candidates.length === 0) return;
     const target = candidates.reduce((a, b) => (a.x < b.x ? a : b));
@@ -77,6 +88,7 @@ export default class Structure {
   }
 
   _updateFlame(delta, enemies) {
+    if (this._isGasImpaired()) return;
     const candidates = this._lane_enemies_ahead(enemies)
       .filter((e) => e.x - this.x <= this.levelCfg.range);
     if (candidates.length === 0) return;
@@ -86,6 +98,7 @@ export default class Structure {
   }
 
   _updateMortar(time, enemies) {
+    if (this._isGasImpaired()) return;
     if (time - this.lastFireTime < this.levelCfg.fireIntervalMs) return;
     const candidates = this._lane_enemies_ahead(enemies);
     if (candidates.length === 0) return;
