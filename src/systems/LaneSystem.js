@@ -1,35 +1,45 @@
-import { GAME_WIDTH, LANE_COUNT, SIDE_MARGIN, LANE_WIDTH, ZONES, DEPTH } from '../data/Constants.js';
+import {
+  GAME_WIDTH, LANE_COUNT, ZONES, LANE_HEIGHT,
+  TRENCH_X, TRENCH_WIDTH, NO_MANS_LAND_X, SPAWN_X, DEPTH,
+} from '../data/Constants.js';
 
-// Beheert de 5 verticale stroken (lanes) van het slagveld: geometrie nu,
-// bouwplekken/structuren volgen in een latere fase.
+// Beheert de 5 horizontale stroken (lanes), gestapeld van boven naar beneden.
+// De loopgraaf staat verticaal aan de linkerkant; vijanden spawnen rechts
+// (SPAWN_X) en marcheren naar links richting de loopgraaf (TRENCH_X + TRENCH_WIDTH).
 export default class LaneSystem {
   constructor(scene) {
     this.scene = scene;
     this.lanes = [];
     for (let i = 0; i < LANE_COUNT; i++) {
-      const centerX = SIDE_MARGIN + LANE_WIDTH * i + LANE_WIDTH / 2;
+      const top = ZONES.battlefield.y + LANE_HEIGHT * i;
       this.lanes.push({
         index: i,
-        centerX,
-        left: SIDE_MARGIN + LANE_WIDTH * i,
-        right: SIDE_MARGIN + LANE_WIDTH * (i + 1),
+        top,
+        bottom: top + LANE_HEIGHT,
+        centerY: top + LANE_HEIGHT / 2,
+        trenchFrontX: TRENCH_X + TRENCH_WIDTH, // x-positie waar een vijand de linie bereikt
+        spawnX: SPAWN_X,
       });
     }
   }
 
-  laneCenterX(index) {
-    return this.lanes[index].centerX;
+  laneCenterY(index) {
+    return this.lanes[index].centerY;
+  }
+
+  trenchFrontX() {
+    return TRENCH_X + TRENCH_WIDTH;
   }
 
   drawDividers() {
     const g = this.scene.add.graphics();
     g.setDepth(DEPTH.GROUND_FX);
-    const top = ZONES.noMansLand.y;
-    const bottom = ZONES.trench.y + ZONES.trench.height;
+    const left = NO_MANS_LAND_X;
+    const right = GAME_WIDTH - 40;
     g.lineStyle(3, 0xffffff, 0.35);
     for (let i = 1; i < LANE_COUNT; i++) {
-      const x = SIDE_MARGIN + LANE_WIDTH * i;
-      this._drawDashedLine(g, x, top, x, bottom, 14, 12);
+      const y = ZONES.battlefield.y + LANE_HEIGHT * i;
+      this._drawDashedLine(g, left, y, right, y, 14, 12);
     }
     return g;
   }

@@ -22,6 +22,12 @@ const manifest = [
   { key: 'icon_machinegun', path: `${A}/ui/icon_machinegun.png`, w: 128, h: 128, transparent: true, category: 'icon' },
   { key: 'icon_gasmask', path: `${A}/ui/icon_gasmask.png`, w: 128, h: 128, transparent: true, category: 'icon' },
   { key: 'icon_barbedwire', path: `${A}/ui/icon_barbedwire.png`, w: 128, h: 128, transparent: true, category: 'icon' },
+  { key: 'icon_atgun', path: `${A}/ui/icon_atgun.png`, w: 128, h: 128, transparent: true, category: 'icon' },
+  { key: 'icon_flamethrower', path: `${A}/ui/icon_flamethrower.png`, w: 128, h: 128, transparent: true, category: 'icon' },
+  { key: 'icon_mortarteam', path: `${A}/ui/icon_mortarteam.png`, w: 128, h: 128, transparent: true, category: 'icon' },
+  { key: 'icon_tank_blocker', path: `${A}/ui/icon_tank_blocker.png`, w: 128, h: 128, transparent: true, category: 'icon' },
+  { key: 'icon_landmine_tank', path: `${A}/ui/icon_landmine_tank.png`, w: 128, h: 128, transparent: true, category: 'icon' },
+  { key: 'icon_landmine_personnel', path: `${A}/ui/icon_landmine_personnel.png`, w: 128, h: 128, transparent: true, category: 'icon' },
   { key: 'icon_supplies', path: `${A}/ui/icon_supplies.png`, w: 64, h: 64, transparent: true, category: 'icon' },
   { key: 'icon_wave', path: `${A}/ui/icon_wave.png`, w: 64, h: 64, transparent: true, category: 'icon' },
   { key: 'ability_mortar', path: `${A}/ui/ability_mortar.png`, w: 96, h: 96, transparent: true, category: 'icon' },
@@ -30,19 +36,23 @@ const manifest = [
 
   // Vijanden
   { key: 'soldier_infantry_enemy', path: `${A}/units/soldier_infantry_enemy.png`, w: 64, h: 64, transparent: true, category: 'unit' },
+  { key: 'soldier_grenadier_enemy', path: `${A}/units/soldier_grenadier_enemy.png`, w: 64, h: 64, transparent: true, category: 'unit' },
+  { key: 'soldier_flamethrower_enemy', path: `${A}/units/soldier_flamethrower_enemy.png`, w: 64, h: 64, transparent: true, category: 'unit' },
+  { key: 'mortar_team_enemy', path: `${A}/units/mortar_team_enemy.png`, w: 96, h: 96, transparent: true, category: 'unit' },
   { key: 'soldier_assault_enemy', path: `${A}/units/soldier_assault_enemy.png`, w: 64, h: 64, transparent: true, category: 'unit' },
   { key: 'tank_enemy', path: `${A}/units/tank_enemy.png`, w: 128, h: 128, transparent: true, category: 'unit' },
 
   // Structuren
-  { key: 'wall_level1', path: `${A}/structures/wall_level1.png`, w: 160, h: 120, transparent: true, category: 'structure' },
-  { key: 'wall_level2', path: `${A}/structures/wall_level2.png`, w: 160, h: 120, transparent: true, category: 'structure' },
-  { key: 'wall_level3', path: `${A}/structures/wall_level3.png`, w: 160, h: 120, transparent: true, category: 'structure' },
+  { key: 'wall_level1', path: `${A}/structures/wall_level1.png`, w: 120, h: 160, transparent: true, category: 'structure' },
+  { key: 'wall_level2', path: `${A}/structures/wall_level2.png`, w: 120, h: 160, transparent: true, category: 'structure' },
+  { key: 'wall_level3', path: `${A}/structures/wall_level3.png`, w: 120, h: 160, transparent: true, category: 'structure' },
   { key: 'machinegun_level1', path: `${A}/structures/machinegun_level1.png`, w: 140, h: 140, transparent: true, category: 'structure' },
   { key: 'machinegun_level2', path: `${A}/structures/machinegun_level2.png`, w: 140, h: 140, transparent: true, category: 'structure' },
   { key: 'machinegun_level3', path: `${A}/structures/machinegun_level3.png`, w: 140, h: 140, transparent: true, category: 'structure' },
+  { key: 'atgun_level1', path: `${A}/structures/atgun_level1.png`, w: 150, h: 150, transparent: true, category: 'structure' },
   { key: 'gasmask_bunker', path: `${A}/structures/gasmask_bunker.png`, w: 140, h: 120, transparent: true, category: 'structure' },
-  { key: 'barbedwire_level1', path: `${A}/structures/barbedwire_level1.png`, w: 170, h: 60, transparent: true, category: 'structure' },
-  { key: 'barbedwire_level2', path: `${A}/structures/barbedwire_level2.png`, w: 170, h: 60, transparent: true, category: 'structure' },
+  { key: 'barbedwire_level1', path: `${A}/structures/barbedwire_level1.png`, w: 60, h: 170, transparent: true, category: 'structure' },
+  { key: 'barbedwire_level2', path: `${A}/structures/barbedwire_level2.png`, w: 60, h: 170, transparent: true, category: 'structure' },
 ];
 
 export default manifest;

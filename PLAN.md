@@ -9,7 +9,13 @@ plaatst en upgrade. Vaste campagne van golven, eindigend in een overwinning.
 ## Kernbeslissingen (bevestigd met speler)
 - **Besturing**: puur base-building met de muis/touch — geen bestuurbaar personage.
   Geplaatste structuren vuren/werken automatisch.
-- **Layout**: 5 vaste verticale stroken (lanes) over de breedte van het slagveld.
+- **Layout (gecorrigeerd na referentiebeeld)**: de loopgraaf staat **verticaal**
+  aan de **linkerkant** van het scherm. Vijanden spawnen aan de **rechterkant**
+  en marcheren **horizontaal naar links** door 5 vaste **horizontale** stroken
+  (lanes) die onder elkaar liggen. Dit is de reden dat een breed/landscape
+  canvas goed past: de aanvalsrichting zelf is horizontaal, dus een brede
+  canvas geeft een lange aanlooproute. (Eerdere aanname was verticale lanes
+  met loopgraaf onderaan — gecorrigeerd op basis van een referentiescreenshot.)
 - **Verlies-conditie**: gedeelde loopgraaf-integriteit (HP). Elke vijand die een
   lane-doorbraak veroorzaakt kost HP. Game over bij 0.
 - **Structuur**: vaste campagne van 12 golven met oplopende moeilijkheid, golf 12
@@ -50,22 +56,26 @@ laat het weten als je dit ook door ChatGPT-assets wilt laten vervangen.
   `Phaser.Scale.FIT`.
 - Voortgang/instellingen (volume, laatst gehaalde golf) via `localStorage`.
 
-## Speelveld-indeling (per golf, statisch, geen scrolling nodig)
-- Canvas 1600×900 (bevestigd: standaard breedbeeld/16:9-verhouding past beter op
-  schermen dan een bijna-vierkant formaat — en geeft daarnaast zelfs méér
-  absolute hoogte dan de eerdere 760px, dus de lanes worden er langer van, niet
-  korter). Vijf lanes van ~300px breed, 40px marge links/rechts.
+## Speelveld-indeling (per golf, statisch, geen scrolling nodig — gecorrigeerd)
+- Canvas 1600×900 breedbeeld.
 - Bovenste HUD-balk (~60px): golfnummer, voorraad (currency), loopgraaf-HP-balk.
 - Vaardighedenbalk (~50px, altijd zichtbaar, ook tijdens een golf): de 3
   actieve vaardigheden (mortier/gas/reserves) met cooldown-indicatie.
-- Spawn-strook: bovenaan no man's land, per lane een spawnpunt voor vijanden.
-- No man's land (~600px hoog): vijanden marcheren van boven naar beneden — ruime
-  aanlooproute zodat MG's meerdere keren kunnen vuren voor een vijand de linie
-  bereikt, en genoeg ruimte om mortier/gas-vaardigheden gericht op een deel van
-  de lane in te zetten. Prikkeldraad-bouwplek vlak voor de loopgraaf.
-- Loopgraaf-linie (~150px): per lane bouwplekken voor Muur (1 slot) en
-  Machinegeweer (2 sloten, dus "extra mg" = tweede nest in dezelfde lane) en
-  Gasmaskerpost (1 slot).
+- Slagveld (y 110-760, hoogte 650px, volle breedte 1600px min marges):
+  - **Loopgraaf-linie**: verticale strook aan de **linkerkant** (x ~40-220px),
+    in **2 rijen** (bevestigd): **voorste rij** (dicht bij no man's land) met
+    Muur (1 slot) en Machinegeweer (2 sloten — "extra mg" = tweede nest in
+    dezelfde lane) en de nieuwe Vlammenwerper-structuur (1 slot); **achterste
+    rij** (verder terug) met AT-kanon (1 slot), de nieuwe Mortierteam-
+    structuur (1 slot) en Gasmaskerpost (1 slot).
+  - **No man's land**: rest van de breedte (x ~220-1560px, ruim 1300px lang) —
+    dit is de aanlooproute waarover vijanden van rechts naar links marcheren.
+    Ruim genoeg zodat MG's/AT-kanon meerdere keren kunnen vuren voor een
+    vijand de linie bereikt. Prikkeldraad-bouwplek vlak voor de loopgraaf
+    (verticale strook, net als de vijandelijke bewegingsrichting loodrecht
+    doorkruist).
+  - **Spawn-rand**: uiterst rechts (x ~1560-1600), per lane een spawnpunt.
+  - 5 horizontale lanes van ~130px hoog, gestapeld van y=110 tot y=760.
 - Onderste bouw-/shoppaneel (~140px): alleen zichtbaar/actief tijdens de
   pauzefase — knoppen om bouwtype te selecteren, prijs, en "Start volgende
   golf"-knop.
@@ -85,6 +95,26 @@ laat het weten als je dit ook door ChatGPT-assets wilt laten vervangen.
 - **Prikkeldraad**: geplaatst in no man's land vlak voor de loopgraaf, 2 niveaus.
   Vertraagt vijanden en doet langzaam schade terwijl ze erdoorheen lopen. Tanks
   breken niveau 1 sneller af (minder effect); niveau 2 houdt langer stand.
+- **AT-kanon** (nieuw, bevestigd, achterste rij): 1 slot per lane, duur, traag
+  vuurtempo maar hoge schade per schot met een forse bonus tegen tanks — het
+  logische antwoord op de tank-dreiging vanaf golf 8. Historisch gebaseerd op
+  WW1-veldkanonnen in directe-vuur-rol tegen tanks (zoals bij Cambrai, 1917) en
+  het Duitse Tankgewehr M1918-antitankgeweer — geen Panzerfaust (dat is WO2).
+- **Vlammenwerper-structuur** (nieuw, bevestigd, voorste rij): korte reikwijdte
+  maar hoge schade-over-tijd, effectief tegen groepen dichtbij; historisch
+  bestonden er ook Duitse/geallieerde vaste vlammenwerper-installaties in
+  loopgraafverdediging, dus authentiek genoeg voor 1917.
+- **Mortierteam-structuur** (nieuw, bevestigd, achterste rij): 3-koppige
+  bemanning met een kleine mortier (visuele stijl à la Company of Heroes),
+  vuurt automatisch indirect op vijanden verderop in de lane. Bestaat naast de
+  actieve mortier-vaardigheid (die blijft gratis/cooldown-gebaseerd), niet in
+  plaats daarvan.
+- **No man's land-plaatsbaar (nieuw, bevestigd)**: 2 bouwplekken per lane in
+  no man's land (ver + dichtbij de loopgraaf), elk met keuze uit Prikkeldraad
+  (permanent, 2 niveaus), **Tankversperring** (permanent, blokkeert/vertraagt
+  alleen tanks), **Tankmijn** (eenmalig, alleen tegen tanks, verdwijnt na
+  gebruik) of **Personeelsmijn** (eenmalig, alleen tegen infanterie-achtige
+  eenheden, verdwijnt na gebruik).
 
 ## Actieve vaardigheden tijdens een golf (bevestigd: speler wil invloed tijdens het gevecht)
 Naast het bouwpaneel (alleen in de pauze) krijgt de speler een aparte, altijd
@@ -107,16 +137,28 @@ niet hoeft te rekenen:
 Dit is een eigen `AbilitySystem`, los van `EconomySystem`/`LaneSystem` (die
 gaan over de permanente pauze-aankopen).
 
-## Vijanden & gevaren (moeilijkheidscurve over 12 golven)
-1. **Sturmtruppen** (basis infanterie) — golf 1+, laag HP, matige snelheid.
-2. **Stoottroepen** (assault) — golf 4+, meer HP, iets sneller, meer schade bij doorbraak.
-3. **Mosterdgas-aanval** — periodiek gevaar vanaf golf 5, raakt 1-3 willekeurige
+## Vijanden & gevaren (moeilijkheidscurve over 12 golven, uitgebreid)
+1. **Sturmtruppen** (gewone schutters, basis infanterie) — golf 1+, laag HP, matige snelheid.
+2. **Granaatwerpers** (nieuw, bevestigd) — golf 3+, gooien handgranaten met een
+   boog die deels over Muur/Prikkeldraad heen gaan en rechtstreeks de loopgraaf-
+   linie raken; moeten snel neergehaald worden voor ze in werp-bereik komen.
+3. **Vlammenwerper-troepen** (nieuw, bevestigd) — golf 5+, traag maar zeer
+   gevaarlijk van dichtbij: zetten Muur/Prikkeldraad in brand (versnelde
+   vervalschade aan die structuur) als ze de linie bereiken. Kwetsbaar op
+   afstand door hun lage snelheid.
+4. **Vijandelijk mortierteam** (nieuw, bevestigd) — golf 6+, blijft ver naar
+   rechts (achteraan) staan en beschiet structuren direct met indirect vuur —
+   dwingt de speler om ook doelen verderop in de lane te raken, niet alleen de
+   dichtstbijzijnde vijand.
+5. **Stoottroepen** (assault) — golf 4+, meer HP, iets sneller, meer schade bij doorbraak.
+6. **Mosterdgas-aanval** — periodiek gevaar vanaf golf 5, raakt 1-3 willekeurige
    lanes tijdelijk; lanes zonder gasmaskerpost verliezen tijdelijk MG-effectiviteit
    en de loopgraaf lijdt extra schade als er in die lane doorbraken gebeuren.
-4. **Tanks** — golf 8+, hoog HP, langzaam, negeren een deel van prikkeldraad-vertraging,
-   vereisen geconcentreerd MG-vuur.
-5. **Golf 12 (finale)**: gemengde zware golf — meerdere tanks, volle breedte gasaanval,
-   golven Stoottroepen — climax voor het overwinningsscherm.
+7. **Tanks** — golf 8+, hoog HP, langzaam, negeren een deel van prikkeldraad-vertraging,
+   vereisen geconcentreerd MG/AT-kanonvuur.
+8. **Golf 12 (finale)**: gemengde zware golf — meerdere tanks, volle breedte gasaanval,
+   granaatwerpers, vlammenwerpers en Stoottroepen door elkaar — climax voor het
+   overwinningsscherm.
 
 ## Scenes
 - `BootScene` → start `PreloadScene`.

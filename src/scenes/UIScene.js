@@ -20,6 +20,19 @@ export default class UIScene extends Phaser.Scene {
     this._buildTopHud();
     this._buildAbilityBar();
     this._buildBottomPanel();
+
+    const gameScene = this.scene.get('Game');
+    gameScene.events.on('supplies-changed', (value) => {
+      this.suppliesText.setText(`${value}`);
+    });
+    gameScene.events.on('trench-hp-changed', (hp, maxHp) => {
+      const pct = Phaser.Math.Clamp(hp / maxHp, 0, 1);
+      this.hpBar.width = 320 * pct;
+      this.hpBar.setFillStyle(pct > 0.5 ? 0x5fae4a : pct > 0.2 ? 0xd9a441 : 0xd8453b);
+    });
+    gameScene.events.on('wave-changed', (wave) => {
+      this.waveText.setText(`GOLF ${wave} / 12`);
+    });
   }
 
   _buildTopHud() {
