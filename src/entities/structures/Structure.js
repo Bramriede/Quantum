@@ -85,6 +85,8 @@ export default class Structure {
     target.takeDamage(dmg);
     tracer(this.scene, this.x, this.y, target.x, target.y, 0xffe27a);
     screenShake(this.scene, 40, this.def.id === 'atgun' ? 0.004 : 0.0008);
+    const audio = this.scene.registry.get('audio');
+    if (audio) audio.playShot();
   }
 
   _updateFlame(delta, enemies) {
@@ -117,6 +119,8 @@ export default class Structure {
         if (target.alive) target.takeDamage(this.levelCfg.damage);
         hitBurst(this.scene, target.x, target.y, 0xd8453b, 10);
         screenShake(this.scene, 90, 0.003);
+        const audio = this.scene.registry.get('audio');
+        if (audio) audio.playExplosion();
       },
     });
   }
@@ -140,6 +144,8 @@ export default class Structure {
     target.takeDamage(this.levelCfg.damage);
     hitBurst(this.scene, this.x, this.y, 0xffb84d, 14);
     screenShake(this.scene, 160, 0.006);
+    const audio = this.scene.registry.get('audio');
+    if (audio) audio.playExplosion();
     this.destroy();
   }
 

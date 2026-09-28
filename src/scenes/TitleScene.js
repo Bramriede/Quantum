@@ -1,10 +1,13 @@
-import { GAME_WIDTH, GAME_HEIGHT } from '../data/Constants.js';
+import { GAME_WIDTH, GAME_HEIGHT, TOTAL_WAVES } from '../data/Constants.js';
+import SaveManager from '../systems/SaveManager.js';
 
 export default class TitleScene extends Phaser.Scene {
   constructor() { super('Title'); }
 
   create() {
     const w = GAME_WIDTH, h = GAME_HEIGHT;
+    this.audio = this.registry.get('audio');
+    this.cameras.main.fadeIn(250, 0, 0, 0);
 
     this.add.image(w / 2, h / 2, 'title_bg').setDisplaySize(w, h);
     this.add.rectangle(w / 2, h / 2, w, h, 0x000000, 0.25);
@@ -17,13 +20,21 @@ export default class TitleScene extends Phaser.Scene {
       fontFamily: 'Georgia, serif', fontSize: '22px', color: '#c9b896',
     }).setOrigin(0.5);
 
+    const save = SaveManager.get();
+    if (save.bestWave > 0) {
+      this.add.text(w / 2, h / 2 - 112, `Beste resultaat: golf ${save.bestWave} / ${TOTAL_WAVES}${save.victories > 0 ? `  ·  Overwinningen: ${save.victories}` : ''}`, {
+        fontFamily: 'Georgia, serif', fontSize: '16px', color: '#d9b45c',
+      }).setOrigin(0.5);
+    }
+
     this._makeButton(w / 2, h / 2 - 20, 'HOUD DE LINIE', () => {
       this.cameras.main.fadeOut(300, 0, 0, 0);
       this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('Game'));
     });
 
     this._makeButton(w / 2, h / 2 + 100, 'INSTELLINGEN', () => {
-      // Volgt in een latere fase.
+      this.scene.launch('Settings', { returnScene: 'Title' });
+      this.scene.pause();
     });
 
     this.add.text(w / 2, h - 34, 'Muis/klik om te bouwen en te richten · Touch: tap', {
@@ -38,7 +49,10 @@ export default class TitleScene extends Phaser.Scene {
     }).setOrigin(0.5);
     frame.on('pointerover', () => frame.setTint(0xdddddd));
     frame.on('pointerout', () => frame.clearTint());
-    frame.on('pointerdown', onClick);
+    frame.on('pointerdown', () => {
+      if (this.audio) this.audio.playClick();
+      onClick();
+    });
     return { frame, text };
   }
 }

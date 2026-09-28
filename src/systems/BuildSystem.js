@@ -77,6 +77,8 @@ export default class BuildSystem {
     const structure = new Structure(this.scene, laneIndex, this.laneSystem, def.slot, def.id, 1);
     this.structures.push(structure);
     this._drawSlotMarkers();
+    const audio = this.scene.registry.get('audio');
+    if (audio) audio.playCoin();
   }
 
   _tryUpgrade(structure) {
@@ -84,6 +86,8 @@ export default class BuildSystem {
     const nextCfg = structure.def.levels[structure.level];
     if (!this.economy.spend(nextCfg.price)) return;
     structure.upgrade();
+    const audio = this.scene.registry.get('audio');
+    if (audio) audio.playCoin();
   }
 
   _drawSlotMarkers() {

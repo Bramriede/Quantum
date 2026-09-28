@@ -62,6 +62,13 @@ export default class UIScene extends Phaser.Scene {
     this.waveText = this.add.text(GAME_WIDTH - 225, y + height / 2, 'GOLF 1 / 12', {
       fontFamily: 'Georgia, serif', fontSize: '20px', color: '#f0e6c8',
     }).setOrigin(0, 0.5).setDepth(DEPTH.UI);
+
+    const pauseBtn = this.add.text(GAME_WIDTH - 30, y + height / 2, '⏸', {
+      fontFamily: 'Georgia, serif', fontSize: '26px', color: '#f0e6c8',
+    }).setOrigin(0.5).setDepth(DEPTH.UI).setInteractive({ useHandCursor: true });
+    pauseBtn.on('pointerover', () => pauseBtn.setColor('#ffffff'));
+    pauseBtn.on('pointerout', () => pauseBtn.setColor('#f0e6c8'));
+    pauseBtn.on('pointerdown', () => this.gameScene.events.emit('request-pause'));
   }
 
   _buildAbilityBar() {

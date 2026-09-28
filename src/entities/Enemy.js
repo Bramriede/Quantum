@@ -83,6 +83,9 @@ export default class Enemy {
     hitBurst(this.scene, this.sprite.x, this.sprite.y);
     if (this.hp <= 0) {
       this.die();
+    } else {
+      const audio = this.scene.registry.get('audio');
+      if (audio && Math.random() < 0.35) audio.playHit();
     }
   }
 
